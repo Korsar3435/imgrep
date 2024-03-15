@@ -1,0 +1,3 @@
+The user name has to be changed manually.
+
+e.g. /home/vmu/... -> /home/xy/...
