@@ -2,7 +2,7 @@ Bootstrap: docker
 From: ubuntu:22.04
 
 %files
-    /home/vmu/Downloads/scripts-arc/aux_files/otf2-3.0.3.tar.gz /opt/otf2-3.0.3.tar.gz
+    /home/vmu/Downloads/script-arc/aux_files/otf2-3.0.3.tar.gz /opt/otf2-3.0.3.tar.gz
 
 %post
     apt-get update
@@ -30,7 +30,7 @@ From: ubuntu:22.04
     apt-get -y clean
 
 %labels
-	app motiv
+    app motiv
     version 2.1.2
 
 %help
