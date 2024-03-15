@@ -35,10 +35,7 @@ EOF
     awk -F: '{print $1}' | xargs strip
 
 %files
-  /home/vmu/Downloads/scripts-arc/aux_files/customrep /opt
-
-%setup
-  tar -xf /home/vmu/Downloads/scripts-arc/aux_files/customrep.tar.gz -C .
+  /home/vmu/Downloads/script-arc/aux_files/customrep /opt
 
 Bootstrap: docker
 From: ubuntu:22.04
@@ -59,4 +56,3 @@ Stage: final
 
 %labels
   app motiv
-
