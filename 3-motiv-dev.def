@@ -34,4 +34,4 @@ From: ubuntu:22.04
     version 2.1.2
 
 %help
-	Container (Ubuntu22.04) with Motiv: An interactive Qt application to visualize OTF2 trace files.
+    Container (Ubuntu22.04) with Motiv: An interactive Qt application to visualize OTF2 trace files.
