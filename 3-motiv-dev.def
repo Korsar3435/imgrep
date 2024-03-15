@@ -1,0 +1,37 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%files
+    /home/vmu/Downloads/scripts-arc/aux_files/otf2-3.0.3.tar.gz /opt/otf2-3.0.3.tar.gz
+
+%post
+    apt-get update
+    apt-get upgrade -y
+    apt-get install -y build-essential git cmake qt6-base-dev freeglut3-dev
+
+    tar -xf /opt/otf2-3.0.3.tar.gz -C /opt
+    cd /opt/otf2-3.0.3
+    ./configure
+    make
+    make install
+
+    cd /opt
+    git clone https://github.com/Azera5/motiv -b main+Prototype
+    cd /opt/motiv
+    git submodule update --init --recursive
+    cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr/local
+    cmake --build build
+    cmake --install build
+
+    rm /opt/otf2-3.0.3.tar.gz
+    rm -r /opt/otf2-3.0.3
+    rm -r /opt/motiv
+    apt-get -y autoremove
+    apt-get -y clean
+
+%labels
+	app motiv
+    version 2.1.2
+
+%help
+	Container (Ubuntu22.04) with Motiv: An interactive Qt application to visualize OTF2 trace files.
