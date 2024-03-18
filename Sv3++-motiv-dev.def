@@ -1,0 +1,84 @@
+Bootstrap: docker
+From: spack/ubuntu-focal:latest
+Stage: build
+
+%setup
+  echo $APPTAINER_ROOTFS > /tmp/prev_apptainer_rootfs_info.txt
+
+%post
+  mkdir /opt/AppDir && cd /opt/AppDir
+  cp /opt/motiv.desktop /opt/AppDir
+  cp /opt/motiv.png /opt/AppDir
+  cp /opt/.DirIcon /opt/AppDir
+  cat << EOF > spack.yaml
+spack:
+  repos:
+  - /opt/customrep
+  specs:
+  - motiv@dev
+  packages:
+    all:
+      variants: +shared ~debug
+      target: [x86_64_v2]
+  concretizer:
+    unify: false
+  config:
+    install_tree: /opt/AppDir/usr/local
+  view: false
+EOF
+
+  # fix preparation
+  cd /opt/spack
+  git fetch origin pull/42070/head:pull-request-branch
+  git checkout pull-request-branch
+  # move back
+  cd -
+
+  # installation
+  . /opt/spack/share/spack/setup-env.sh
+  # gcc 9 not enough
+  apt update
+  apt-get install -y gcc-10 g++-10
+  spack compiler find
+  
+  spack env activate -d .
+  spack install
+  spack gc -y
+
+  apt update
+  apt-get install -y libfuse2
+
+  # first part of AppRun
+  cat << EOF > AppRun
+#!/bin/bash
+
+SCRIPT_LOCATION=\$(realpath "\$0")
+WORK_LOCATION=\$(dirname "\$SCRIPT_LOCATION")
+export LD_LIBRARY_PATH=\$(find \$WORK_LOCATION/usr -type d -name lib -printf '%p:' | sed 's/:\$//'):\$LD_LIBRARY_PATH
+export PATH=\$(find \$WORK_LOCATION/usr -type d -name bin -printf '%p:' | sed 's/:\$//'):\$PATH
+EOF
+
+# altough motiv will be found via $PATH (even with precedence over potential motivs on the host machine), the last part is still missing: running motiv *with* possible params.
+  echo "motiv \$@" >> AppRun
+  chmod a+x AppRun
+
+  cd /opt
+  export ARCH=x86_64
+  chmod a+x appimagetool-x86_64.AppImage
+  ./appimagetool-x86_64.AppImage AppDir Export.AppImage
+
+%files
+  ~/Downloads/script-arc/aux_files/customrep /opt
+  ~/Downloads/script-arc/aux_files/Motiv.AppDir/motiv.desktop /opt
+  ~/Downloads/script-arc/aux_files/Motiv.AppDir/motiv.png /opt
+  ~/Downloads/script-arc/aux_files/Motiv.AppDir/.DirIcon /opt
+  ~/Downloads/script-arc/AppImageSetup/appimagetool-x86_64.AppImage /opt
+
+Bootstrap: scratch
+Stage: final
+
+%pre
+  sleep 1
+  cp -r $(cat /tmp/prev_apptainer_rootfs_info.txt)/opt/Export.AppImage ~/Downloads
+  exit 0
+

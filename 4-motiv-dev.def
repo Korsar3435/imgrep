@@ -11,7 +11,9 @@ spack:
   - /opt/customrep
   specs:
   - motiv@dev
-
+  packages:
+    all:
+      target: [x86_64]
   concretizer:
     unify: true
   config:

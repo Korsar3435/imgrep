@@ -10,8 +10,10 @@ spack:
   repos:
   - /opt/customrep
   specs:
-  - motiv@dev
-
+  - motiv
+  packages:
+    all:
+      target: [x86_64]
   concretizer:
     unify: true
   config:
